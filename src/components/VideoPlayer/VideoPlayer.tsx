@@ -1,9 +1,7 @@
-import React, {useCallback, useEffect, useState, useRef} from 'react';
-import {StyleSheet, View, ActivityIndicator, Dimensions} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {StyleSheet} from 'react-native';
 import Video, {VideoRef} from 'react-native-video';
 import {IVideoPlayerProps} from './interface';
-
-const {height, width} = Dimensions.get('window');
 
 export const VideoPlayer = React.memo(
   ({
@@ -12,23 +10,16 @@ export const VideoPlayer = React.memo(
     isFocused,
     initialTimestamp = 0,
     isFirstVideo,
+    muted,
+    onBuffer,
+    onLoad,
+    onLoadStart,
+    onSeek,
+    onProgress,
+    isVideoLoaded,
+    toggleVideoLoad,
   }: IVideoPlayerProps) => {
-    const [loading, setLoading] = useState(true);
-    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
     const videoRef = useRef<VideoRef>(null);
-
-    const onBuffer = useCallback(() => {
-      setLoading(true);
-    }, []);
-
-    const onProgress = useCallback(() => {
-      setLoading(false);
-    }, []);
-
-    const onLoad = useCallback(() => {
-      setLoading(false);
-      setIsVideoLoaded(true);
-    }, []);
 
     useEffect(() => {
       if (initialTimestamp > 0 && isFirstVideo && !isVideoLoaded) {
@@ -37,56 +28,36 @@ export const VideoPlayer = React.memo(
       if (!isCurrentVideo) {
         videoRef.current?.pause();
       }
-      setIsVideoLoaded(false);
-    }, [initialTimestamp, isCurrentVideo, isFirstVideo, isVideoLoaded]);
+      toggleVideoLoad(false);
+    }, [
+      initialTimestamp,
+      isCurrentVideo,
+      isFirstVideo,
+      isVideoLoaded,
+      toggleVideoLoad,
+    ]);
 
     return (
-      <View style={styles.videoContainer}>
-        {loading && (
-          <View style={styles.loader}>
-            <ActivityIndicator size="large" color="#fff" />
-          </View>
-        )}
-        <Video
-          ref={videoRef}
-          source={{uri: videoUrl, type: 'mp4'}}
-          style={StyleSheet.absoluteFill}
-          resizeMode="cover"
-          repeat
-          paused={!isCurrentVideo || !isFocused}
-          onBuffer={onBuffer}
-          onLoad={onLoad}
-          onProgress={onProgress}
-          controls={false}
-          ignoreSilentSwitch="ignore"
-          playInBackground={true}
-          playWhenInactive={true}
-        />
-      </View>
+      <Video
+        ref={videoRef}
+        source={{uri: videoUrl, type: 'mp4'}}
+        style={StyleSheet.absoluteFill}
+        resizeMode="cover"
+        repeat
+        paused={!isCurrentVideo || !isFocused}
+        onBuffer={onBuffer}
+        onLoad={onLoad}
+        onProgress={onProgress}
+        controls={false}
+        ignoreSilentSwitch="ignore"
+        playInBackground={true}
+        playWhenInactive={true}
+        muted={muted}
+        onSeek={onSeek}
+        onLoadStart={onLoadStart}
+      />
     );
   },
 );
-
-const styles = StyleSheet.create({
-  videoContainer: {
-    height: height,
-    width: width,
-    backgroundColor: '#000',
-  },
-  thumbnail: {
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-  },
-  loader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default VideoPlayer;

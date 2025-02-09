@@ -16,7 +16,6 @@ import VideoOverlay from '../../components/VideoOverlay/VideoOverlay';
 import VideoPlayer from '../../components/VideoPlayer/VideoPlayer';
 import {SearchNormal1} from 'iconsax-react-native';
 import {getVideoData} from '../../services/getFireStoreData';
-import {VideoRef} from 'react-native-video';
 
 const {height, width} = Dimensions.get('window');
 
@@ -34,7 +33,6 @@ const ShortScreen: React.FC<Props> = ({route}) => {
   const initialTimestamp = route?.params?.timestamp || 0;
   const [loading, setLoading] = useState(true);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const videoRef = useRef<VideoRef>(null);
 
   const toggleVideoLoad = useCallback((status: boolean = true) => {
     setIsVideoLoaded(status);
